@@ -3,56 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mi Mundito AR - Colores</title>
+  <title>Mi Mundito AR - Colores (Debug)</title>
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <!-- AR.js -->
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.6/aframe/build/aframe-ar.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
+    /* Opcional: centrar mensaje de debug */
+    #arjsDebugUI { font-size: 14px; }
   </style>
 </head>
 <body>
-  <a-scene embedded arjs>
-    <!-- Al enfocar el marcador “hiro” aparecerá nuestro mundo colorido -->
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    arjs="trackingMethod: best; debugUIEnabled: true;"
+  >
+    <!-- Marcador “hiro” -->
     <a-marker preset="hiro">
-
       <!-- Esfera principal (planeta) -->
-      <a-sphere
-        position="0 0.5 0"
-        radius="0.5"
-        color="#2196F3">
-      </a-sphere>
-
+      <a-sphere position="0 0.5 0" radius="0.5" color="#2196F3"></a-sphere>
       <!-- Anillo alrededor simulando un ecuador -->
-      <a-ring
-        position="0 0.5 0"
-        rotation="-90 0 0"
-        radius-inner="0.55"
-        radius-outer="0.6"
-        color="#FFC107">
+      <a-ring position="0 0.5 0" rotation="-90 0 0"
+              radius-inner="0.55" radius-outer="0.6" color="#FFC107">
       </a-ring>
-
       <!-- Cuatro cubos de colores a su alrededor -->
       <a-box position="0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#4CAF50"></a-box>
       <a-box position="-0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#E91E63"></a-box>
       <a-box position="0 0.1 0.8" depth="0.2" height="0.2" width="0.2" color="#FF5722"></a-box>
       <a-box position="0 0.1 -0.8" depth="0.2" height="0.2" width="0.2" color="#9C27B0"></a-box>
-
-      <!-- Un pequeño cilindro representando un “árbol” -->
-      <a-cylinder
-        position="0.3 0.1 -0.3"
-        radius="0.05"
-        height="0.3"
-        color="#8BC34A">
-      </a-cylinder>
-
-      <!-- Luces para mejorar el efecto -->
+      <!-- Cilindro representando un “árbol” -->
+      <a-cylinder position="0.3 0.1 -0.3" radius="0.05" height="0.3" color="#8BC34A"></a-cylinder>
+      <!-- Luces -->
       <a-entity light="type: ambient; intensity: 0.6"></a-entity>
       <a-entity light="type: directional; intensity: 0.8" position="1 1 0"></a-entity>
     </a-marker>
-
-    <!-- Cámara necesaria -->
+    <!-- Cámara -->
     <a-entity camera></a-entity>
   </a-scene>
 </body>
