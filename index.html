@@ -1,39 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AR Markerless – Mi Mundito</title>
-  <!-- A-Frame core -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AR Markerless + Fallback Marker-Based</title>
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- Componente de hit-test para A-Frame -->
+  <!-- Hit-test component -->
   <script src="https://unpkg.com/aframe-ar-hit-test-component@1.0.0/dist/aframe-ar-hit-test-component.min.js"></script>
-  <style>body{margin:0;overflow:hidden;}</style>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #fallback-msg {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.1rem;
+      display: none;
+    }
+  </style>
 </head>
 <body>
+  <div id="fallback-msg">
+    Tu navegador no soporta markerless AR.<br>
+    Apunta la cámara al marcador “hiro” impreso (10×10 cm).
+  </div>
+
   <a-scene
-    vr-mode-ui="enabled: false"
     embedded
+    vr-mode-ui="enabled: false"
     renderer="colorManagement: true; physicallyCorrectLights: true;"
     webxr="mode: immersive-ar; optionalFeatures: hit-test;"
     ar-hit-test
+    arjs="debugUIEnabled: false;"
   >
-    <a-assets>
-      <!-- Modelo glTF si quieres algo distinto a una esfera -->
-      <!-- <a-asset-item id="model" src="mundito.glb"></a-asset-item> -->
-    </a-assets>
-
-    <!-- Retículo para apuntar al plano -->
-    <a-entity id="reticle"
-              ar-hit-test-reticle
-              visible="false">
-      <a-ring radius-inner="0.05" radius-outer="0.06"
-              material="shader: flat; color: #00FF00">
-      </a-ring>
+    <!-- Retículo para markerless -->
+    <a-entity
+      id="reticle"
+      ar-hit-test-reticle
+      geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.06;"
+      material="shader: flat; color: #00FF00"
+      visible="false">
     </a-entity>
 
-    <!-- Aquí colocaremos la esfera cuando toques -->
-    <a-sphere id="placed" radius="0.2" color="#2196F3" visible="false"></a-sphere>
+    <!-- “Mundito” de formas, oculto hasta colocarlo -->
+    <a-entity id="world" visible="false">
+      <a-sphere position="0 0.5 0" radius="0.5" color="#2196F3"></a-sphere>
+      <a-ring position="0 0.5 0" rotation="-90 0 0"
+              radius-inner="0.55" radius-outer="0.6" color="#FFC107">
+      </a-ring>
+      <a-box position="0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#4CAF50"></a-box>
+      <a-box position="-0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#E91E63"></a-box>
+      <a-box position="0 0.1 0.8" depth="0.2" height="0.2" width="0.2" color="#FF5722"></a-box>
+      <a-box position="0 0.1 -0.8" depth="0.2" height="0.2" width="0.2" color="#9C27B0"></a-box>
+      <a-cylinder position="0.3 0.1 -0.3" radius="0.05" height="0.3" color="#8BC34A"></a-cylinder>
+      <a-entity light="type: ambient; intensity: 0.6"></a-entity>
+      <a-entity light="type: directional; intensity: 0.8" position="1 1 0"></a-entity>
+    </a-entity>
+
+    <!-- Marcador “hiro” para fallback -->
+    <a-marker id="marker" preset="hiro" visible="false">
+      <!-- El mismo “mundito” si se usa marcador -->
+      <a-entity id="world-marker" visible="false">
+        <a-sphere position="0 0.5 0" radius="0.5" color="#2196F3"></a-sphere>
+        <a-ring position="0 0.5 0" rotation="-90 0 0"
+                radius-inner="0.55" radius-outer="0.6" color="#FFC107">
+        </a-ring>
+        <a-box position="0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#4CAF50"></a-box>
+        <a-box position="-0.8 0.1 0" depth="0.2" height="0.2" width="0.2" color="#E91E63"></a-box>
+        <a-box position="0 0.1 0.8" depth="0.2" height="0.2" width="0.2" color="#FF5722"></a-box>
+        <a-box position="0 0.1 -0.8" depth="0.2" height="0.2" width="0.2" color="#9C27B0"></a-box>
+        <a-cylinder position="0.3 0.1 -0.3" radius="0.05" height="0.3" color="#8BC34A"></a-cylinder>
+        <a-entity light="type: ambient; intensity: 0.6"></a-entity>
+        <a-entity light="type: directional; intensity: 0.8" position="1 1 0"></a-entity>
+      </a-entity>
+    </a-marker>
 
     <a-entity camera></a-entity>
   </a-scene>
@@ -41,21 +84,34 @@
   <script>
     const scene   = document.querySelector('a-scene');
     const reticle = document.getElementById('reticle');
-    const placed  = document.getElementById('placed');
+    const world   = document.getElementById('world');
+    const marker  = document.getElementById('marker');
+    const worldM  = document.getElementById('world-marker');
+    const fallbackMsg = document.getElementById('fallback-msg');
 
-    // Cuando el retículo detecte un plano, hazlo visible
-    scene.addEventListener('ar-hit-test-started', () => {
-      reticle.setAttribute('visible', true);
-    });
-
-    // Al tocar la pantalla, colocamos la esfera en la posición del retículo
-    scene.addEventListener('ar-hit-test-select', () => {
-      const pos = reticle.object3D.position;
-      const rot = reticle.object3D.quaternion;
-      placed.object3D.position.copy(pos);
-      placed.object3D.quaternion.copy(rot);
-      placed.setAttribute('visible', true);
-    });
+    // Comprueba si hit-test (markerless) está soportado
+    navigator.xr && navigator.xr.isSessionSupported('immersive-ar')
+      .then(supported => {
+        if (!supported) throw new Error('No AR hit-test');
+        // Si lo es, muestra reticle y oculta fallback
+        scene.addEventListener('ar-hit-test-started', () => {
+          reticle.setAttribute('visible', true);
+        });
+        scene.addEventListener('ar-hit-test-select', () => {
+          // Coloca el mundito de shapes en la posición detectada
+          const pos = reticle.object3D.position;
+          const quat = reticle.object3D.quaternion;
+          world.object3D.position.copy(pos);
+          world.object3D.quaternion.copy(quat);
+          world.setAttribute('visible', true);
+        });
+      })
+      .catch(() => {
+        // Si no hay hit-test, activa el marker-based fallback
+        fallbackMsg.style.display = 'block';
+        marker.setAttribute('visible', true);
+        worldM.setAttribute('visible', true);
+      });
   </script>
 </body>
 </html>
