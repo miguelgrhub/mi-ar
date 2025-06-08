@@ -1,0 +1,27 @@
+{
+  "name": "mi-ar",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "export-shapes.js",
+  "scripts": {
+    "export": "node export-shapes.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miguelgrhub/mi-ar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/miguelgrhub/mi-ar/issues"
+  },
+  "homepage": "https://github.com/miguelgrhub/mi-ar#readme",
+  "description": "",
+  "dependencies": {
+    "three": "^0.176.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.176.0"
+  }
+}
